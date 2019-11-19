@@ -50,15 +50,65 @@ def get_picture(soup):
     print(f'Picture number is: {pic_num}')
     return pic_num, pic_urls
 
-
-def get_location(soup):
-    location_soup = soup.find("a",{"class": "_g85abvs _133jvmu8"})
-    location = location_soup.get_text() if (location_soup is not None) else 'No location INFO!'
-    if location != 'No location INFO!':
-        city, state = location.split(',',1) 
-    print(f'{location}')
+def get_shipping(soup):
+    delivery_soup = soup.find("span",{"class": "_147ao2d8 hidden-xs _149pqlo","data-name": "delivery-info"})
+    shipping_soup = soup.find("span",{"class": "_1v68mn6s _17axpax","data-name": "shipping-text"})
+    # get the delivery info text
+    delivery = delivery_soup.get_text() if (delivery_soup is not None) else 'No delivery INFO!'
+    # get the shipping info text
+    shipping = shipping_soup.get_text() if (shipping_soup is not None) else 'No shipping INFO!'
     
-    return location, city, state
+    # pattern to decide pick-up distance in integer
+    ptn_dist = r"\d+" 
+    # pattern to decide shipping location & price (when only delivery option is available)
+    print('shipping is: ',shipping)
+    ptn_ship_loc_price = r"(?<=from ).+" 
+    # pattern to decide shipping price (when both delivery and pick-up options are available)
+    ptn_ship_price = r"(?<=Ships for \$)"
+    # pattern to decide whether shipping included
+    # ptn_pick = r"^Local pickup" 
+    
+    distance = None
+    ship_loc = None
+    ship_price = None
+    
+    if delivery != 'No delivery INFO!':
+        distance = int(re.search(ptn_dist,delivery).group(0))
+        print(f'The distance for pick-up is: {distance}')
+    
+    if shipping != 'No shipping INFO!' and delivery != 'No delivery INFO!':
+        ship_price = re.search(ptn_ship_price,shipping).group(0)
+        print(f'The shipping price is {ship_price}')
+        
+    if shipping != 'No shipping INFO!' and delivery == 'No delivery INFO!':
+        ship_loc_price = re.search(ptn_ship_loc_price,shipping).group(0)
+        ship_loc = ship_loc_price.split(' for $')[0]
+        ship_price = ship_loc_price.split(' for $')[1]
+        print('ship_price is: ',ship_price)
+        print(f'The seller\'s location is: {ship_loc}')
+        
+    return delivery, shipping, distance, ship_loc, ship_price
+    
+def get_location(soup,ship_loc):
+    location_soup = soup.find("a",{"class": "_g85abvs _133jvmu8"})
+    # when the product has shipping option
+    if ship_loc is not None:
+        location = ship_loc
+        city, state = location.split(',',1)
+        print(f'{location}')
+        return location, city, state
+    # when pick-up is the option
+    else:
+        location = location_soup.get_text() if (location_soup is not None) else 'No location INFO!'
+        if location != 'No location INFO!':
+            city, state = location.split(',',1)
+            print(f'{location}')
+            return location, city, state
+        else:
+            print(f'{location}')
+            city = None
+            state = None
+            return location, city, state
 
 
 def get_time(soup):
@@ -71,33 +121,9 @@ def get_time(soup):
     print(time_num + ' ' + time_unit + 'ago')
     return time
 
-
-def get_shipping(soup):
-    shipping_soup = soup.find("span",{"data-name": "delivery-info"})
-    shipping = shipping_soup.get_text() if (shipping_soup is not None) else 'No shipping INFO!' # get the shipping info text
-    print(f'{shipping}')
-    
-    ptn_dist = r"\d+" # pattern to decide distance in integer
-    ptn_ship_loc = r"^Ships from" # pattern to decide shipping location
-    ptn_pick_or_ship = r"^Local pickup" # pattern to decide whether shipping included
-    
-    if shipping != 'No shipping INFO!' and re.search(ptn_pick_or_ship,shipping) is not None:
-        #print(re.search(ptn_dist,shipping))
-        distance = int(re.search(ptn_dist,shipping).group(0))
-        ship_loc = None
-        print(f'The distance for pick-up is: {distance}')
-    elif shipping != 'No shipping INFO!':
-        ship_loc = re.search(ptn_ship_loc,shipping)
-        distance = None
-        print(f'The seller\'s location is {ship_loc}')
-    else:
-        raise NotImplementedError
-        
-    return shipping, distance, ship_loc
-
-
 base_url = "https://offerup.com" # This is the main target webpage
 search_results = []
+#search_url = base_url + "/search/?q=iphone%20x&delivery_param=s" # The search page
 search_url = base_url + "/search/?q=iphone%20x" # The search page
 
 scroll_times = 5
@@ -149,12 +175,11 @@ for items in search_results:
     print("Getting Item Picture")
     get_picture(sub_soup)
     
+    print("Getting Shipping INFO!")
+    delivery, shipping, distance, ship_loc,ship_price = get_shipping(sub_soup)
+    
     print("Getting Location!")
-    get_location(sub_soup)
+    location,city,state = get_location(sub_soup,ship_loc)
     
     print("Getting Time!")
     get_time(sub_soup)
-    
-    print("Getting Shipping INFO!")
-    get_shipping(sub_soup)
-
