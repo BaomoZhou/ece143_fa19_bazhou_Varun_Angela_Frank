@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
+from selenium import webdriver
 import re
+import time
+import os
 
 
 def get_title(soup):
@@ -11,6 +14,7 @@ def get_title(soup):
     
     return title
 
+
 def get_value(soup):
     value_soup = soup.find("span",{"class": "_ckr320"})
     value = value_soup.get_text() if (value_soup is not None) else 'Sold!'
@@ -19,6 +23,7 @@ def get_value(soup):
     
     return value,money
 
+
 def get_condition(soup):
     condition_soup = soup.find("span",{"data-test": "item-condition"})
     condition = condition_soup.get_text() if (condition_soup is not None) else 'No Condition INFO!'
@@ -26,12 +31,14 @@ def get_condition(soup):
     
     return condition
 
+
 def get_description(soup):
     description_soup = soup.find("div",{"data-test": "item-description"})
     description = description_soup.get_text() if (description_soup is not None) else 'No Description!'
     print(f'{description}')
 
     return description
+
 
 def get_picture(soup):
     picture_soup = soup.find_all("img",{"class": "_fk4cz1","src": re.compile("https://photos\.offerup\.com/.")})
@@ -43,6 +50,7 @@ def get_picture(soup):
     print(f'Picture number is: {pic_num}')
     return pic_num, pic_urls
 
+
 def get_location(soup):
     location_soup = soup.find("a",{"class": "_g85abvs _133jvmu8"})
     location = location_soup.get_text() if (location_soup is not None) else 'No location INFO!'
@@ -51,6 +59,7 @@ def get_location(soup):
     print(f'{location}')
     
     return location, city, state
+
 
 def get_time(soup):
     time_soup = soup.find("div",{"class": "_147ao2d8"})
@@ -61,6 +70,7 @@ def get_time(soup):
     time_num, time_unit = time.split(' ',1)
     print(time_num + ' ' + time_unit + 'ago')
     return time
+
 
 def get_shipping(soup):
     shipping_soup = soup.find("span",{"data-name": "delivery-info"})
@@ -89,6 +99,18 @@ def get_shipping(soup):
 base_url = "https://offerup.com" # This is the main target webpage
 search_results = []
 search_url = base_url + "/search/?q=iphone%20x" # The search page
+
+scroll_times = 5
+cwd = os.path.abspath(os.path.dirname(__file__))
+path_driver = cwd + '/chromedriver'
+browser = webdriver.Chrome(path_driver)
+browser.get(search_url)
+browser.implicitly_wait(10)
+
+for _ in range(scroll_times):
+    # execute_script will scroll the page down to the bottom
+    browser.execute_script('window.scrollTo(0, document.body.scrollHeight)')
+    time.sleep(5)  # sleep a little while to avoid delay or conflict
 
 print("Search Starts")
 html = urlopen(search_url).read().decode('utf-8') # Load the webpage
@@ -135,4 +157,4 @@ for items in search_results:
     
     print("Getting Shipping INFO!")
     get_shipping(sub_soup)
-    
+
