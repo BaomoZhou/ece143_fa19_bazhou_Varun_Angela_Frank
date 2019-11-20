@@ -50,6 +50,7 @@ def get_picture(soup):
     print(f'Picture number is: {pic_num}')
     return pic_num, pic_urls
 
+
 def get_shipping(soup):
     delivery_soup = soup.find("span",{"class": "_147ao2d8 hidden-xs _149pqlo","data-name": "delivery-info"})
     shipping_soup = soup.find("span",{"class": "_1v68mn6s _17axpax","data-name": "shipping-text"})
@@ -88,7 +89,8 @@ def get_shipping(soup):
         print(f'The seller\'s location is: {ship_loc}')
         
     return delivery, shipping, distance, ship_loc, ship_price
-    
+
+
 def get_location(soup,ship_loc):
     location_soup = soup.find("a",{"class": "_g85abvs _133jvmu8"})
     # when the product has shipping option
@@ -121,10 +123,11 @@ def get_time(soup):
     print(time_num + ' ' + time_unit + 'ago')
     return time
 
+
 base_url = "https://offerup.com" # This is the main target webpage
 search_results = []
 #search_url = base_url + "/search/?q=iphone%20x&delivery_param=s" # The search page
-search_url = base_url + "/search/?q=iphone%20x" # The search page
+search_url = base_url + "/search/?q=iphone" # The search page
 
 scroll_times = 5
 cwd = os.path.abspath(os.path.dirname(__file__))
@@ -133,18 +136,39 @@ browser = webdriver.Chrome(path_driver)
 browser.get(search_url)
 browser.implicitly_wait(10)
 
+"""
+# click on "Load more" button
+button = browser.find_element_by_css_selector('button._10emh7n5._1dipfwuv.ou-btn.ou-btn-special')
+try:
+    # click on "Load more" button
+    print(button)
+    button.click()
+    print('Click Successfully')
+except Exception as e:
+    print('Click Failed')
+"""
+
+try:
+    browser.refresh() # 刷新方法 refresh
+    print ('test pass: refresh successful')
+except Exception as e:
+    print ("Exception found", format(e))
+
+
 for _ in range(scroll_times):
     # execute_script will scroll the page down to the bottom
     browser.execute_script('window.scrollTo(0, document.body.scrollHeight)')
     time.sleep(5)  # sleep a little while to avoid delay or conflict
 
+
 print("Search Starts")
-html = urlopen(search_url).read().decode('utf-8') # Load the webpage
-soup = BeautifulSoup(html, features='lxml') # BF4 analysis
+print(browser.page_source)
+soup = BeautifulSoup(browser.page_source, features='lxml') # BF4 analysis
 print("Search Finished!")
 
 # get all the item urls
 sub_urls = soup.find_all("a", {"class": "_109rpto _1anrh0x", "href": re.compile("/item/detail/\d+/")})
+sub_urls += soup.find_all("a", {"class": "_109rpto db-item-tile", "href": re.compile("/item/detail/\d+/")})
 if len(sub_urls) != 0:
     for i in range(len(sub_urls)):
         search_results.append(sub_urls[i]['href'])
@@ -153,7 +177,9 @@ else:
     pass
 print(search_results)
 
+count = 0
 for items in search_results:
+    count += 1
     full_url = base_url + items
     print(f'\nLoading Url: {full_url}')
     sub_html = urlopen(full_url).read().decode('utf-8')
@@ -183,3 +209,7 @@ for items in search_results:
     
     print("Getting Time!")
     get_time(sub_soup)
+
+print(count)
+
+browser.close()
