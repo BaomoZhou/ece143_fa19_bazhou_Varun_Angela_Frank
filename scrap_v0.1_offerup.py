@@ -2,7 +2,13 @@
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 import re
+import pandas as pd
 
+def get_id(url):
+    ptn_url = r"\d+"
+    item_id = re.search(ptn_url,url).group(0)
+    
+    return item_id
 
 def get_title(soup):
     title_soup = soup.find("h1",{"class": "_t1q67t0 _1juw1gq"})
@@ -13,10 +19,13 @@ def get_title(soup):
 
 def get_value(soup):
     value_soup = soup.find("span",{"class": "_ckr320"})
-    value = value_soup.get_text() if (value_soup is not None) else 'Sold!'
+    ptn_money = r"(?<=\$)\d+"
+    value = re.search(ptn_money,value_soup.get_text()).group(0) if (value_soup is not None) else 'Sold!'
     print(f'{value}')
-    money = int(value) if value.isdigit() else None
-    
+    if value != 'Sold!':    
+        money = int(value) if value.isdigit() else float(value)
+    else:
+        money = value
     return value,money
 
 def get_condition(soup):
@@ -55,9 +64,9 @@ def get_shipping(soup):
     ptn_dist = r"\d+" 
     # pattern to decide shipping location & price (when only delivery option is available)
     print('shipping is: ',shipping)
-    ptn_ship_loc_price = r"(?<=from ).+" 
+    ptn_ship_loc_price = r"(?<=from.).+" 
     # pattern to decide shipping price (when both delivery and pick-up options are available)
-    ptn_ship_price = r"(?<=Ships for \$)"
+    ptn_ship_price = r"(?<=for..)\d+"
     # pattern to decide whether shipping included
     # ptn_pick = r"^Local pickup" 
     
@@ -128,6 +137,7 @@ print("Search Finished!")
 
 # get all the item urls
 sub_urls = soup.find_all("a", {"class": "_109rpto _1anrh0x", "href": re.compile("/item/detail/\d+/")})
+sub_urls += soup.find_all("a", {"class": "_109rpto db-item-tile", "href": re.compile("/item/detail/\d+/")})
 if len(sub_urls) != 0:
     for i in range(len(sub_urls)):
         search_results.append(sub_urls[i]['href'])
@@ -135,37 +145,89 @@ else:
     # no valid sub link found
     pass
 print(search_results)
+print('the length is: ',len(search_results))
+
+item_id_list = []
+title_list = []
+price_list = []
+condition_list = []
+description_list = []
+number_of_pic_list = []
+delivery_list = []
+shipping_list = []
+distance_list = []
+ship_loc_list = []
+ship_price_list = []
+location_list = []
+city_list = []
+state_list = []
+time_list = []
 
 for items in search_results:
+    
     full_url = base_url + items
     print(f'\nLoading Url: {full_url}')
     sub_html = urlopen(full_url).read().decode('utf-8')
     sub_soup = BeautifulSoup(sub_html, features='lxml')
     print("Loading Item Finished!")
     
+    print("Getting ID!")
+    item_id = get_id(items)
+    item_id_list.append(item_id)
+    
     print("Getting Title!")
-    get_title(sub_soup)
+    title = get_title(sub_soup)
+    title_list.append(title)
     
     print("Getting Value!")
-    get_value(sub_soup)
+    _, price = get_value(sub_soup)
+    price_list.append(price)
     
     print("Getting Item Condition!")
-    get_condition(sub_soup)
+    condition = get_condition(sub_soup)
+    condition_list.append(condition)
     
     print("Getting Item Description!")
-    get_description(sub_soup)
+    description = get_description(sub_soup)
+    description_list.append(description)
     
     print("Getting Item Picture")
-    get_picture(sub_soup)
+    number_of_pic,_ = get_picture(sub_soup)
+    number_of_pic_list.append(number_of_pic)
     
     print("Getting Shipping INFO!")
-    delivery, shipping, distance, ship_loc,ship_price = get_shipping(sub_soup)
+    delivery, shipping, distance, ship_loc, ship_price = get_shipping(sub_soup)
+    delivery_list.append(delivery)
+    shipping_list.append(shipping)
+    distance_list.append(distance)
+    ship_loc_list.append(ship_loc)
+    ship_price_list.append(ship_price)
     
     print("Getting Location!")
-    location,city,state = get_location(sub_soup,ship_loc)
+    location, city, state = get_location(sub_soup,ship_loc)
+    location_list.append(location)
+    city_list.append(city)
+    state_list.append(state)
     
     print("Getting Time!")
-    get_time(sub_soup)
+    time = get_time(sub_soup)
+    time_list.append(time)
     
+dataframe = pd.DataFrame({"Item ID":item_id_list,
+                          "Title":title_list,
+                          "Price":price_list,
+                          "Condition":condition_list,
+                          "Description":description_list,
+                          "Number_of_pictures":number_of_pic_list,
+                          "Delivery":delivery_list,
+                          "Shipping":shipping_list,
+                          "Distance":distance_list,
+                          "Ship_Location":ship_loc_list,
+                          "Ship_Price":ship_price_list,
+                          "Location":location_list,
+                          "City":city_list,
+                          "State":state_list,
+                          "Time":time_list})
+dataframe.to_csv('./Result_Offerup.csv', index = True)
     
     
