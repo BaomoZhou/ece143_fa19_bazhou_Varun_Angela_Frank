@@ -8,7 +8,9 @@ Common Attributes in OfferUp and Cragilist:
 4. Prices
 5. Condition
 6. Time of Newly Posted Product
+7. Location
 
 Weekly Work:
 1. Automatically Scribing the Website and Storing the data per X hours
-2. Fix the dynamic page turning problem
+2. Fix the dynamic page turning problem (FIXED)
+3. Countinue optimize the code and fix bugs

@@ -71,21 +71,28 @@ def get_shipping(soup):
     shipping = shipping_soup.get_text() if (shipping_soup is not None) else 'No shipping INFO!'
 
     # pattern to decide pick-up distance in integer
-    ptn_dist = r"\d+"
+    ptn_dist = r"\d+|a.mile"
     # pattern to decide shipping location & price (when only delivery option is available)
-    print('shipping is: ', shipping)
     ptn_ship_loc_price = r"(?<=from.).+"
     # pattern to decide shipping price (when both delivery and pick-up options are available)
-    ptn_ship_price = r"(?<=for..)\d+"
+    ptn_ship_price = r"(?<=for..).+"
     # pattern to decide whether shipping included
-    # ptn_pick = r"^Local pickup" 
+    # ptn_pick = r"^Local pickup"
+
+    print('shipping is: ', shipping)
+    print('delivery is: ', delivery)
 
     distance = None
     ship_loc = None
     ship_price = None
 
     if delivery != 'No delivery INFO!':
-        distance = int(re.search(ptn_dist, delivery).group(0))
+        print('delivery INFO is: ', delivery)
+        distance = re.search(ptn_dist, delivery).group(0)
+        if distance.isdigit():
+            distance = int(re.search(ptn_dist, delivery).group(0))
+        else:
+            distance = 1
         print(f'The distance for pick-up is: {distance}')
 
     if shipping != 'No shipping INFO!' and delivery != 'No delivery INFO!':
@@ -138,11 +145,12 @@ def get_time(soup):
 base_url = "https://offerup.com"  # This is the main target webpage
 search_results = []
 # search_url = base_url + "/search/?q=iphone%20x&delivery_param=s" # The search page
-search_url = base_url + "/search/?q=iphone"  # The search page
+# search_url = base_url + "/search/?q=iphone%20x"  # The search page
+search_url = base_url + "/search/?q=iphone%20x&delivery_param=s_p&radius=50&price_min=70&price_max="  # The search page
 
-scroll_times = 5
+scroll_times = 10
 cwd = os.path.abspath(os.path.dirname(__file__))
-path_driver = cwd + '/chromedriver'
+path_driver = cwd + '/linux_chromedriver'
 browser = webdriver.Chrome(path_driver)
 browser.get(search_url)
 browser.implicitly_wait(10)
@@ -268,4 +276,4 @@ dataframe = pd.DataFrame({"Item ID": item_id_list,
                           "City": city_list,
                           "State": state_list,
                           "Time": time_list})
-dataframe.to_csv('./Result_Offerup.csv', index=True)
+dataframe.to_csv('./IPhoneX_16_50_Result_Offerup.csv', index=True)
