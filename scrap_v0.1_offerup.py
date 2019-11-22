@@ -150,7 +150,7 @@ search_url = base_url + "/search/?q=iphone%20x&delivery_param=s_p&radius=50&pric
 
 scroll_times = 10
 cwd = os.path.abspath(os.path.dirname(__file__))
-path_driver = cwd + '/chromedriver'
+path_driver = cwd + '/linux_chromedriver'
 browser = webdriver.Chrome(path_driver)
 browser.get(search_url)
 browser.implicitly_wait(10)
@@ -276,4 +276,4 @@ dataframe = pd.DataFrame({"Item ID": item_id_list,
                           "City": city_list,
                           "State": state_list,
                           "Time": time_list})
-dataframe.to_csv('./IPhoneX_13_50_Result_Offerup.csv', index=True)
+dataframe.to_csv('./IPhoneX_16_50_Result_Offerup.csv', index=True)
