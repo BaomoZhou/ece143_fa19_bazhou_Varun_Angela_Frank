@@ -143,9 +143,17 @@ def get_time(soup):
     return post_time
 
 
-def start_scrap(item_name,base_url,keyword_url,scroll_times,driver_addr):
+def start_scrap(item_choice,base_url,keyword_choice,scroll_times,driver_addr):
 
     # Base_url is the main target webpage
+    item_name_list = ["IPhoneX",
+                      "SamsungGalaxyS8"]
+    item_name = item_name_list[item_choice]
+    
+    keywordurl_list = ["/search/?q=iphone%20x&delivery_param=s_p&radius=50&price_min=100&price_max=",
+                       "/search/?q=samsung%20galaxy%20s8&delivery_param=s_p&radius=50&price_min=100"]
+    keyword_url = keywordurl_list[keyword_choice]
+    
     search_results = []
     search_url = base_url + keyword_url  # starting point of scraping
     
@@ -270,7 +278,7 @@ def start_scrap(item_name,base_url,keyword_url,scroll_times,driver_addr):
                               "City": city_list,
                               "State": state_list,
                               "Time": time_list})
-    
+    dataframe = dataframe.drop_duplicates(subset='Item ID')
     scrap_time = datetime.datetime.now()
     out_path= './{}_{}_Result_Offerup.csv'.format(item_name,scrap_time)
     dataframe.to_csv(out_path, index=True)
@@ -278,20 +286,18 @@ def start_scrap(item_name,base_url,keyword_url,scroll_times,driver_addr):
 if __name__ == '__main__':
     import argparse
     
-    item_name='IPhoneX'
+    item_choice=0
     base_url="https://offerup.com"
-    keyword_url="/search/?q=iphone%20x&delivery_param=s_p&radius=50&price_min=70&price_max="
     scroll_times=10
-    driver_addr='/linux_chromedriver'
+    driver_addr='/macos_chromedriver'
     
     parser = argparse.ArgumentParser(description='define the url, search keyword, webdriver and scroll times')
-    parser.add_argument("--name",default=item_name,help="the name of item we search about",type=str)
+    parser.add_argument("--item",default=item_choice,help="the item we search about",type=int)
     parser.add_argument("--base",default=base_url,help="the base offerup url",type=str)
-    parser.add_argument("--keyword",default=keyword_url,help="the search url",type=str)
     parser.add_argument("--scroll",default=scroll_times,help="the number of page to go over",type=int)
     parser.add_argument("--driver",default=driver_addr,help="the web driver address",type=str)
     
     args = parser.parse_args()
         
-    start_scrap(args.name,args.base,args.keyword,args.scroll,args.driver)
+    start_scrap(args.item,args.base,args.item,args.scroll,args.driver)
     
