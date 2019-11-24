@@ -36,9 +36,9 @@ def compare_csv(data_yst,data_td):
     Comparing two csv file from two consecutive days to get new and sold post
     
     :param yst: yesterday's scraping data
-    :type yst: pd.Dataframe
+    :type yst: pd.DataFrame
     :param td: today's scraping data
-    :type td: pd.Dataframe
+    :type td: pd.DataFrame
     
     :return sold: the number of sold items
     :return new: the number of new items
@@ -60,9 +60,33 @@ def compare_csv(data_yst,data_td):
         
     return sold, new
 
+def compute_avg(df):
+    '''
+    Calculate the average price per type of conditions.
+    
+    :param df: input pandas dataframe for scraping of one day
+    :type df: pd.DataFrame
+    
+    :return: average price for each condition
+    '''
+    s1 = df['Condition']
+    s2 = df['Price'].astype('float32')
+    avg = s2.mean()
+    df = pd.concat([s1, s2], axis=1)
+    grp = df.groupby(['Condition'])
+    composition = s1.value_counts()
+    composition.to_csv('composition_of_condition.csv')
+    condition_avg = grp.mean()
+    condition_avg.to_csv('avg_price_for_conditions.csv')
+    return avg, condition_avg
 
-file = 'IPhoneX_2019-11-21 19:28:16.667516_Result_Offerup.csv'
+
+
+file = './old_scrap/IPhoneX_2019-11-21 19:28:16.667516_Result_Offerup.csv'
 df = pd.read_csv(file)
 df.drop(axis=1, columns='Unnamed: 0', inplace=True)
 df = clean_title(df)
+avg, conditional_avg = compute_avg(df)
+print(avg)
+print(conditional_avg)
 #print(df['Title'])
