@@ -41,6 +41,35 @@ def clean(data):
     data = data.reset_index(drop=True)
     return data
 
+def compare_csv(data_yst,data_td):
+    '''
+    Comparing two csv file from two consecutive days to get new and sold post
+    
+    :param yst: yesterday's scraping data
+    :type yst: pd.Dataframe
+    :param td: today's scraping data
+    :type td: pd.Dataframe
+    
+    :return sold: the number of sold items
+    :return new: the number of new items
+    '''
+    
+    sold = 0
+    new = 0
+    
+    ID_yst = data_yst['Item ID']
+    ID_td = data_td['Item ID']
+    
+    for item in ID_td:
+        if item not in ID_yst.values:
+            new += 1
+        
+    for item in ID_yst:
+        if item not in ID_td.values:
+            sold += 1
+        
+    return sold, new
+
 
 file = 'old_scrap/IPhoneX_2019-11-21 19:28:16.667516_Result_Offerup.csv'
 df = pd.read_csv(file)
