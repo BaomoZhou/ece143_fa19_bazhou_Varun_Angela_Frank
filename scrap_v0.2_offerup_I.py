@@ -216,7 +216,6 @@ def start_scrap(item_choice,base_url,keyword_choice,scroll_times,driver_addr):
         except:
             read_url(url)
 
-    
     for items in search_results:
         full_url = base_url + items
         print(f'\nLoading Url: {full_url}')
