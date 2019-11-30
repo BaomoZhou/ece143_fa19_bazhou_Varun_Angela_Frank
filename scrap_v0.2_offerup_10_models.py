@@ -162,7 +162,7 @@ def start_scrap(item_choice,base_url,keyword_choice,scroll_times,driver_addr):
                        "/search/?q=IPhone%207&delivery_param=s_p&radius=50&price_min=100",
                        "/search/?q=IPhone%206s&delivery_param=s_p&price_min=80&radius=50",
                        "/search/?q=IPhone%206&delivery_param=s_p&price_min=60&radius=50",
-                       "search/?q=samsung%20galaxy%20s9&delivery_param=s_p&radius=50&price_min=100",
+                       "/search/?q=samsung%20galaxy%20s9&delivery_param=s_p&radius=50&price_min=100",
                        "/search/?q=samsung%20galaxy%20s8&delivery_param=s_p&radius=50&price_min=100",
                        "/search/?q=samsung%20galaxy%20s7&delivery_param=s_p&price_min=100&radius=50",
                        "/search/?q=google%20pixel%204&delivery_param=s_p&radius=50&price_min=100",
