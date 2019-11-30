@@ -25,23 +25,32 @@ def clean(data):
             return -1
         return 1
 
+    def dealer_cond(series):
+        if series == 'For Parts':
+            return -1
+        return 1
+
     assert isinstance(data, pd.DataFrame)
     info_date = data['Time'].apply(dealer_date)
     info_date = info_date[info_date == -1].index.tolist()
-    data = data.drop(axis=0, index=info_date, inplace=False)
 
     info_tit = data['Title'].apply(dealer_title)
     info_tit = info_tit[info_tit == -1].index.tolist()
-    data = data.drop(axis=0, index=info_tit, inplace=False)
 
     info_pri = data['Price'].apply(dealer_price)
     info_pri = info_pri[info_pri == -1].index.tolist()
-    data = data.drop(axis=0, index=info_pri, inplace=False)
 
+    info_cond = data['Condition'].apply(dealer_cond)
+    info_cond = info_cond[info_cond == -1].index.tolist()
+
+    info = info_date + info_tit + info_pri + info_cond
+    info = list(set(info))
+    data = data.drop(axis=0, index=info, inplace=False)
     data = data.reset_index(drop=True)
     return data
 
-def compare_csv(data_yst,data_td):
+
+def compare_csv(data_yst, data_td):
     '''
     Comparing two csv file from two consecutive days to get new and sold post
     
@@ -53,7 +62,6 @@ def compare_csv(data_yst,data_td):
     :return sold: the number of sold items
     :return new: the number of new items
     '''
-    
     sold = 0
     new = 0
     
@@ -75,4 +83,5 @@ file = 'old_scrap/IPhoneX_2019-11-21 19:28:16.667516_Result_Offerup.csv'
 df = pd.read_csv(file)
 df.drop(axis=1, columns='Unnamed: 0', inplace=True)
 df = clean(df)
-print(df['Time'])
+df['Price'] = df['Price'].astype('float64')
+print(df['Condition'].value_counts(normalize=True))
