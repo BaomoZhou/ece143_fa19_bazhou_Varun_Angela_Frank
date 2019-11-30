@@ -205,12 +205,21 @@ def start_scrap(item_choice,base_url,keyword_choice,scroll_times,driver_addr):
     city_list = []
     state_list = []
     time_list = []
-    
+
+    def read_url(url):
+        try:
+            html = urlopen(url).read().decode('utf-8')
+            sub_soup = BeautifulSoup(html, features='lxml')
+            if sub_soup == None:
+                read_url(url)
+            return sub_soup
+        except:
+            read_url(url)
+
     for items in search_results:
         full_url = base_url + items
         print(f'\nLoading Url: {full_url}')
-        sub_html = urlopen(full_url).read().decode('utf-8')
-        sub_soup = BeautifulSoup(sub_html, features='lxml')
+        sub_soup = read_url(full_url)
         print("Loading Item Finished!")
     
         print("Getting ID!")
