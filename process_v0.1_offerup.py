@@ -1,4 +1,5 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 def clean(data, name):
@@ -24,6 +25,8 @@ def clean(data, name):
         key_words = dic[name]
         if series.find(key_words[0]) == -1 and series.find(key_words[-1]) == -1:
             return -1
+        if series.find(ban_words[0]) != -1 or series.find(ban_words[1]) != -1 or series.find(ban_words[2]) != -1:
+            return -1
         return 1
 
     def dealer_price(series):
@@ -41,6 +44,13 @@ def clean(data, name):
         if series == 'For Parts':
             return -1
         return 1
+    
+    def dealer_description(series):
+        series = series.lower()
+        key_words = [' lock',' locked']
+        if series.find(key_words[0]) != -1 or series.find(key_words[1]) != -1:
+            return -1
+        return 1
 
     assert isinstance(data, pd.DataFrame)
     info_date = data['Time'].apply(dealer_date)
@@ -54,12 +64,16 @@ def clean(data, name):
 
     info_cond = data['Condition'].apply(dealer_cond)
     info_cond = info_cond[info_cond == -1].index.tolist()
+    
+    #info_description = data['Description'].apply(dealer_description)
+    #info_description = info_description[info_description == -1].index.tolist()
 
-    info = info_date + info_tit + info_pri + info_cond
+    info = info_date + info_tit + info_pri + info_cond #+ info_description
     info = list(set(info))
     print(info)
     data = data.drop(axis=0, index=info, inplace=False)
     data = data.reset_index(drop=True)
+    print('the length of the data is: ',len(data))
     return data
 
 
@@ -104,13 +118,16 @@ def compute_avg(df):
     s1 = df['Condition']
     s2 = df['Price'].astype('float32')
     avg = s2.mean()
+    max_price = s2.max()
+    min_price = s2.min()
     df = pd.concat([s1, s2], axis=1)
     grp = df.groupby(['Condition'])
     composition = s1.value_counts()
     composition.to_csv('composition_of_condition.csv')
     condition_avg = grp.mean()
     condition_avg.to_csv('avg_price_for_conditions.csv')
-    return avg, condition_avg
+    return avg, condition_avg, max_price, min_price
+
 
 
 
@@ -120,7 +137,9 @@ df.drop(axis=1, columns='Unnamed: 0', inplace=True)
 name_all = file.split('/')[1].split('_')
 name = name_all[0]
 df = clean(df, name)
-avg, conditional_avg = compute_avg(df)
+avg, conditional_avg, max_price,  min_price = compute_avg(df)
 print(avg)
+print(max_price)
+print(min_price)
 print(conditional_avg)
 #print(df['Title'])
