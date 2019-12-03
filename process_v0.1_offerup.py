@@ -25,8 +25,6 @@ def clean(data, name):
         key_words = dic[name]
         if series.find(key_words[0]) == -1 and series.find(key_words[-1]) == -1:
             return -1
-        if series.find(ban_words[0]) != -1 or series.find(ban_words[1]) != -1 or series.find(ban_words[2]) != -1:
-            return -1
         return 1
 
     def dealer_price(series):
@@ -70,7 +68,6 @@ def clean(data, name):
 
     info = info_date + info_tit + info_pri + info_cond #+ info_description
     info = list(set(info))
-    print(info)
     data = data.drop(axis=0, index=info, inplace=False)
     data = data.reset_index(drop=True)
     print('the length of the data is: ',len(data))
@@ -131,11 +128,12 @@ def compute_avg(df):
 
 
 
-file = './SamsungGalaxyS7_2019-11-30 01:02:59.981149_Result_Offerup.csv'
+file = './Offerup_S7/SamsungGalaxyS7_2019-11-30 01:02:59.981149_Result_Offerup.csv'
 df = pd.read_csv(file)
 df.drop(axis=1, columns='Unnamed: 0', inplace=True)
-name_all = file.split('/')[1].split('_')
+name_all = file.split('/')[2].split('_')
 name = name_all[0]
+print(name)
 df = clean(df, name)
 avg, conditional_avg, max_price,  min_price = compute_avg(df)
 print(avg)
