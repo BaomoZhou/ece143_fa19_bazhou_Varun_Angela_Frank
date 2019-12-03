@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 import matplotlib.pyplot as plt
 
 
@@ -126,18 +127,48 @@ def compute_avg(df):
     return avg, condition_avg, max_price, min_price
 
 
+def compare_avg(dir_name):
+    """
+    compare average price of different models in the same dir
+    :param dir_name: the dir name
+    :return:
+    """
+    path = dir_name
+    files = os.listdir(path)
+    res = 0
+    for file in files:
+        name = file.split('_')[0]
+        file = path + '/' + file
+        df = pd.read_csv(file, lineterminator='\n')
+        df = clean(df, name)
+        s2 = df['Price'].astype('float32')
+        avg = s2.mean()
+        res += avg
+    return res/len(files)
 
 
-file = './Offerup_S7/SamsungGalaxyS7_2019-11-30 01:02:59.981149_Result_Offerup.csv'
+
+"""
+file = './B_Offerup_S7/SamsungGalaxyS7_2019-11-30 01:02:59.981149_Result_Offerup.csv'
 df = pd.read_csv(file)
 df.drop(axis=1, columns='Unnamed: 0', inplace=True)
 name_all = file.split('/')[2].split('_')
 name = name_all[0]
-print(name)
 df = clean(df, name)
 avg, conditional_avg, max_price,  min_price = compute_avg(df)
-print(avg)
-print(max_price)
-print(min_price)
-print(conditional_avg)
+"""
+path = './'
+files = os.listdir(path)
+compare_avg_list = []
+for file in files:
+    if file.split('_')[0] != 'B':
+        continue
+    ModelName = file.split('_')[2]
+    compare_avg_list.append({"ModelName": ModelName, "AveragePrice":compare_avg(path + file)})
+df_compare_avg = pd.DataFrame(compare_avg_list, columns=["ModelName", "AveragePrice"])
+df_compare_avg.to_csv("./Compare_AvgPrice_B.csv", index=False)
+#print(avg)
+#print(max_price)
+#print(min_price)
+#print(conditional_avg)
 #print(df['Title'])
