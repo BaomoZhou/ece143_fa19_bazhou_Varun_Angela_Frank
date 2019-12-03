@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def clean(data):
+def clean(data, name):
     """
     purpose to remove not relevant items like xbox, iphone 8 and so on
     :param data: the original dataframe
@@ -9,7 +9,19 @@ def clean(data):
     """
     def dealer_title(series):
         series = series.lower()
-        key_words = ['iphone x', 'iphonex']
+        dic = {
+            'IPhone6': 'iphone 6',
+            'IPhone6s': 'iphone 6s',
+            'IPhone7': 'iphone 7',
+            'IPhoneX': 'iphone x',
+            'Pixel2': 'pixel 2',
+            'Pixel3': 'pixel 3',
+            'Pixel4': 'pixel 4',
+            'SamsungGalaxyS7': 'samsung galaxy s7',
+            'SamsungGalaxyS8': 'samsung galaxy s8',
+            'SamsungGalaxyS9': 'samsung galaxy s9'
+        }
+        key_words = dic[name]
         if series.find(key_words[0]) == -1 and series.find(key_words[-1]) == -1:
             return -1
         return 1
@@ -45,6 +57,7 @@ def clean(data):
 
     info = info_date + info_tit + info_pri + info_cond
     info = list(set(info))
+    print(info)
     data = data.drop(axis=0, index=info, inplace=False)
     data = data.reset_index(drop=True)
     return data
@@ -101,10 +114,12 @@ def compute_avg(df):
 
 
 
-file = './old_scrap/IPhoneX_2019-11-21 19:28:16.667516_Result_Offerup.csv'
+file = './SamsungGalaxyS7_2019-11-30 01:02:59.981149_Result_Offerup.csv'
 df = pd.read_csv(file)
 df.drop(axis=1, columns='Unnamed: 0', inplace=True)
-df = clean(df)
+name_all = file.split('/')[1].split('_')
+name = name_all[0]
+df = clean(df, name)
 avg, conditional_avg = compute_avg(df)
 print(avg)
 print(conditional_avg)
