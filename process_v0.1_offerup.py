@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import math
 import matplotlib.pyplot as plt
 
 
@@ -144,9 +145,84 @@ def compare_avg(dir_name):
         s2 = df['Price'].astype('float32')
         avg = s2.mean()
         res += avg
-    return res/len(files)
+    return round(res/len(files), 2)
 
 
+def compare_newly_post(dir_name):
+    """
+    compare average price of different models in the same dir
+    :param dir_name: the dir name
+    :return:
+    """
+    path = dir_name
+    files = os.listdir(path)
+    res = 0
+    files.sort()
+    if len(files) == 0 or len(files) == 1:
+        return 0
+    for i in range(len(files) - 1):
+        name_1 = files[i].split('_')[0]
+        file_1 = path + '/' + files[i]
+        df_1 = pd.read_csv(file_1, lineterminator='\n')
+        df_1 = clean(df_1, name_1)
+
+        name_2 = files[i+1].split('_')[0]
+        file_2 = path + '/' + files[i+1]
+        df_2 = pd.read_csv(file_2, lineterminator='\n')
+        df_2 = clean(df_2, name_2)
+
+        sold, new = compare_csv(df_1, df_2)
+        res += new
+    return math.ceil(res/(len(files) - 1))
+
+
+def csv_process_A(dir_name, ModelName):
+    """
+    compare average price and newly posted numbers of different models in the same dir
+    :param dir_name:
+    :return:
+    """
+    Date_dic = {0: 'Sun', 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri', 6: 'Sat'}
+    path = dir_name
+    files = os.listdir(path)
+    files.sort()
+    avg_per_day_list = []
+    avg_per_week_list = []
+    avg_per_week = 0
+    composition = pd.DataFrame([{"New (never used)": 0,
+                                 "Open box (never used)": 0,
+                                 "Other (see description)": 0,
+                                 "Reconditioned/Certified": 0,
+                                 "Used (normal wear)": 0}], columns=["Condition", "Number"])
+    print(composition)
+    condition_avg = pd.DataFrame([], columns=["Condition", "Price"])
+    for i, file in enumerate(files):
+        if i == 0:
+            continue
+        name = file.split('_')[0]
+        file = path + '/' + file
+        df = pd.read_csv(file, lineterminator='\n')
+        df = clean(df, name)
+
+        s_cond = df['Condition']
+        s_pri = df['Price'].astype('float32')
+        df = pd.concat([s_cond, s_pri], axis=1)
+        grp = df.groupby(['Condition'])
+        composition = s_cond.value_counts()
+        condition_avg = grp.mean()
+
+        avg_per_day = s_pri.mean()
+        avg_per_day_list.append({"Date": Date_dic[i-1],
+                                 "AveragePrice": avg_per_day})
+        avg_per_week += avg_per_day
+
+    avg_per_week = round(avg_per_week/(len(files) - 1),2)
+    avg_per_week_list.append({"ModelName": ModelName, "AveragePricePerWeek": avg_per_week})
+    df_avg_per_week = pd.DataFrame(avg_per_week_list, columns=["ModelName", "AveragePricePerWeek"])
+    df_avg_per_week.to_csv("./AvgPrice_per_week_A_" + ModelName + ".csv", index=False)
+
+    df_avg_per_day = pd.DataFrame(avg_per_day_list, columns=["Date", "AveragePrice"])
+    df_avg_per_day.to_csv("./AvgPrice_per_day_A_" + ModelName + ".csv", index=False)
 
 """
 file = './B_Offerup_S7/SamsungGalaxyS7_2019-11-30 01:02:59.981149_Result_Offerup.csv'
@@ -161,12 +237,16 @@ path = './'
 files = os.listdir(path)
 compare_avg_list = []
 for file in files:
-    if file.split('_')[0] != 'B':
-        continue
-    ModelName = file.split('_')[2]
-    compare_avg_list.append({"ModelName": ModelName, "AveragePrice":compare_avg(path + file)})
-df_compare_avg = pd.DataFrame(compare_avg_list, columns=["ModelName", "AveragePrice"])
-df_compare_avg.to_csv("./Compare_AvgPrice_B.csv", index=False)
+    if file.split('_')[0] == 'A':
+        ModelName = file.split('_')[2]
+        csv_process_A(path + file, ModelName)
+    elif file.split('_')[0] == 'B':
+        ModelName = file.split('_')[2]
+        compare_avg_list.append({"ModelName": ModelName,
+                                 "AveragePrice": compare_avg(path + file),
+                                 "NewlyPostNum": compare_newly_post(path + file)})
+df_compare_avg = pd.DataFrame(compare_avg_list, columns=["ModelName", "AveragePrice", "NewlyPostNum"])
+df_compare_avg.to_csv("./Compare_AvgPrice+NewlyPostNum_B.csv", index=False)
 #print(avg)
 #print(max_price)
 #print(min_price)
