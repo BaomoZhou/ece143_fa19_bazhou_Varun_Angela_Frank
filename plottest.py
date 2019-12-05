@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-def draw_avg_price_bar(model_name,filepath):
+def draw_avg_price_bar(model_name,filepath,filename,ylimit=None):
     '''
     this function will draw the bar graph for the average price of each
     cellphone model on each website
@@ -10,19 +10,32 @@ def draw_avg_price_bar(model_name,filepath):
     :type filepath: str
     :param model_name: the name of the phone model
     :type model_name: str
+    :param ylimit: this is the range limit of y axis
+    :type ylimit: list
+    :param filename: this is the saved figure's filename
+    :type filename: str
         
     :return: a bar chart that compares the average price
     '''
     
     assert(isinstance(model_name,str)),'the model name should be of type string'
     assert(isinstance(filepath,str)),'the input filepath should be of type string'
+    assert (isinstance(ylimit, list) or ylimit is None),'the input of ylimit should be of type list'
+    assert (isinstance(filename, str)), 'the file name should be of type string'
+
     price_data = pd.read_csv(filepath)
     price_data.drop(axis=1, columns='Unnamed: 0', inplace=True)
-    my_colors = ['#0392cf','#7bc043']
-    ax1 = price_data.plot(title='Average Price of '+model_name+' on Both Websites',x=model_name+'Model',kind='bar',rot=1,color=my_colors)
-    ax1.set_ylabel('Average Price in $')
+    my_colors = ['#800080', '#017270']
+    plt.figure()
+    price_data.plot(title=model_name,x=model_name+'Model',kind='bar',rot=1,color=my_colors)
+    plt.ylabel('Price {$}')
+    if ylimit is not None:
+        plt.ylim(ylimit[0], ylimit[1])
+    plt.savefig(filename)
+    plt.show()
+
     
-def draw_new_post_bar(model_name,filepath):
+def draw_new_post_bar(model_name,filepath,filename,ylimit=None):
     '''
     this function will draw the bar graph for the average number 
     of new post everyday for each cellphone model on each website
@@ -31,18 +44,30 @@ def draw_new_post_bar(model_name,filepath):
     :type filepath: str
     :param model_name: the name of the phone model
     :type model_name: str
+    :param ylimit: this is the range limit of y axis
+    :type ylimit: list
+    :param filename: this is the saved figure's filename
+    :type filename: str
         
     :return: a bar chart that compares the number of new post
     '''
     
     assert(isinstance(model_name,str)),'the model name should be of type string'
     assert(isinstance(filepath,str)),'the input filepath should be of type string'
+    assert(isinstance(ylimit,list) or ylimit is None),'the input of ylimit should be of type list'
+    assert (isinstance(filename, str)), 'the file name should be of type string'
+
     post_data = pd.read_csv(filepath)
     post_data.drop(axis=1, columns='Unnamed: 0', inplace=True)
-    my_colors = ['#0392cf','#7bc043']
-    ax1 = post_data.plot(title='New Post of '+model_name+' on Both Websites',x=model_name+'Model',kind='bar',rot=1,color=my_colors)
-    ax1.set_ylabel('Number of New Post')
-    #ax1.set(ylim=[20,130])
+    my_colors = ['#800080', '#017270']
+    plt.figure()
+    post_data.plot(title=model_name,x=model_name+'Model',kind='bar',rot=1,color=my_colors)
+    plt.ylabel('Number of New Post')
+    if ylimit is not None:
+        plt.ylim(ylimit[0], ylimit[1])
+    plt.savefig(filename)
+    plt.show()
+
     
     
 def draw_avg_price_line(filepath):
