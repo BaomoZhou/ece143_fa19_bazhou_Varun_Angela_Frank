@@ -58,6 +58,8 @@ def clean(data, name):
 
     info_tit = data['Title'].apply(dealer_title)
     info_tit = info_tit[info_tit == -1].index.tolist()
+    print(info_tit)
+
     info_pri = data['Price'].apply(dealer_price)
     info_pri = info_pri[info_pri == -1].index.tolist()
 
