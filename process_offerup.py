@@ -196,11 +196,17 @@ def condition_handler_A(composition_list, condition_avg_list):
     df_con = df_con / len(condition_avg_list)
     df_con.loc['Other (see description)', 'Price'] = df_con.loc['Other (see description)', 'Price'] * len(condition_avg_list) / count
     df_com = df_com.rename_axis("Number")
-    print(df_con)
     #print(list(df_con['Price']))
     #print(list(df_com))
+    print(df_con)
     return df_com, df_con
 
+
+def distance(dt):
+    under_ten = len(dt[(dt['Distance'] < 10)])
+    ten_to_fifty = len(dt[(dt['Distance'] < 50)]) - under_ten
+    fifty_above = len(dt[(dt['Distance'] >= 50)])
+    return [under_ten, ten_to_fifty, fifty_above]
 
 def csv_process_A(dir_name, ModelName):
     """
@@ -219,6 +225,7 @@ def csv_process_A(dir_name, ModelName):
     condition_avg_list = []
     avg_per_week = 0
     avg_ratio_useful = 0
+    under_ten, ten_to_fifty, fifty_above = 0, 0, 0
     for i, file in enumerate(files):
         if i == 0:
             continue
@@ -230,6 +237,9 @@ def csv_process_A(dir_name, ModelName):
         avg_ratio_useful += (len_before - len_useless)/len_before
         s_cond = df['Condition']
         s_pri = df['Price'].astype('float32')
+        under_ten += distance(df)[0]
+        ten_to_fifty += distance(df)[1]
+        fifty_above += distance(df)[2]
         df_temp = pd.concat([s_cond, s_pri], axis=1)
         grp = df_temp.groupby(['Condition'])
         composition = s_cond.value_counts()
@@ -262,7 +272,8 @@ def csv_process_A(dir_name, ModelName):
     df_compostion.to_csv("./Composition_condition_A_" + ModelName + ".csv", index=False)
     df_condition_avg.to_csv("./AvgPrice_condition_A_" + ModelName + ".csv", index=False)
     avg_ratio_useful = avg_ratio_useful/(len(files) - 1)
-    return avg_ratio_useful, newly_per_day_list
+    print((under_ten, ten_to_fifty, fifty_above))
+    return avg_ratio_useful, newly_per_day_list, (under_ten, ten_to_fifty, fifty_above), avg_per_week
 """
 file = './B_Offerup_S7/SamsungGalaxyS7_2019-11-30 01:02:59.981149_Result_Offerup.csv'
 df = pd.read_csv(file)
@@ -272,7 +283,7 @@ name = name_all[0]
 df = clean(df, name)
 avg, conditional_avg, max_price,  min_price = compute_avg(df)
 """
-'''
+
 path = './'
 files = os.listdir(path)
 compare_avg_list = []
@@ -287,7 +298,7 @@ for file in files:
                                  "NewlyPostNum": compare_newly_post(path + file)})
 df_compare_avg = pd.DataFrame(compare_avg_list, columns=["ModelName", "AveragePrice", "NewlyPostNum"])
 df_compare_avg.to_csv("./Compare_AvgPrice+NewlyPostNum_B.csv", index=False)
-'''
+
 #print(avg)
 #print(max_price)
 #print(min_price)
