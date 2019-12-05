@@ -198,7 +198,7 @@ def condition_handler_A(composition_list, condition_avg_list):
     df_com = df_com.rename_axis("Number")
     list(df_con['Price'])
     list(df_com)
-    return list(df_com),  list(df_con['Price'])
+    return df_com, df_con, list(df_com),  list(df_con['Price'])
 
 
 def distance(dt):
@@ -260,7 +260,7 @@ def csv_process_A(dir_name, ModelName):
             sold, new = compare_csv(df, df_)
             newly_per_day_list.append(new)
 
-    df_compostion, df_condition_avg = condition_handler_A(compostion_list, condition_avg_list)
+    df_compostion, df_condition_avg, com_list, con_list = condition_handler_A(compostion_list, condition_avg_list)
     avg_per_week = round(avg_per_week/(len(files) - 1),2)
     avg_per_week_list.append({"ModelName": ModelName, "AveragePricePerWeek": avg_per_week})
     df_avg_per_week = pd.DataFrame(avg_per_week_list, columns=["ModelName", "AveragePricePerWeek"])
@@ -272,7 +272,7 @@ def csv_process_A(dir_name, ModelName):
     df_condition_avg.to_csv("./AvgPrice_condition_A_" + ModelName + ".csv", index=False)
     avg_ratio_useful = avg_ratio_useful/(len(files) - 1)
     return avg_ratio_useful, newly_per_day_list, (under_ten, ten_to_fifty, fifty_above), avg_per_week, \
-           (df_compostion, df_condition_avg)
+           (com_list, con_list)
 """
 file = './B_Offerup_S7/SamsungGalaxyS7_2019-11-30 01:02:59.981149_Result_Offerup.csv'
 df = pd.read_csv(file)
