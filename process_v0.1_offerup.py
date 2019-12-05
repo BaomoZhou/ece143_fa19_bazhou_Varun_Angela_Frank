@@ -58,7 +58,6 @@ def clean(data, name):
 
     info_tit = data['Title'].apply(dealer_title)
     info_tit = info_tit[info_tit == -1].index.tolist()
-
     info_pri = data['Price'].apply(dealer_price)
     info_pri = info_pri[info_pri == -1].index.tolist()
 
@@ -72,8 +71,8 @@ def clean(data, name):
     info = list(set(info))
     data = data.drop(axis=0, index=info, inplace=False)
     data = data.reset_index(drop=True)
-    print('the length of the data is: ',len(data))
-    return data
+    #print('the length of the data is: ',len(data))
+    return len(info_tit), data
 
 
 def compare_csv(data_yst, data_td):
@@ -141,7 +140,7 @@ def compare_avg(dir_name):
         name = file.split('_')[0]
         file = path + '/' + file
         df = pd.read_csv(file, lineterminator='\n')
-        df = clean(df, name)
+        x, df = clean(df, name)
         s2 = df['Price'].astype('float32')
         avg = s2.mean()
         res += avg
@@ -164,16 +163,39 @@ def compare_newly_post(dir_name):
         name_1 = files[i].split('_')[0]
         file_1 = path + '/' + files[i]
         df_1 = pd.read_csv(file_1, lineterminator='\n')
-        df_1 = clean(df_1, name_1)
+        x, df_1 = clean(df_1, name_1)
 
         name_2 = files[i+1].split('_')[0]
         file_2 = path + '/' + files[i+1]
         df_2 = pd.read_csv(file_2, lineterminator='\n')
-        df_2 = clean(df_2, name_2)
+        x, df_2 = clean(df_2, name_2)
 
         sold, new = compare_csv(df_1, df_2)
         res += new
     return math.ceil(res/(len(files) - 1))
+
+
+def condition_handler_A(composition_list, condition_avg_list):
+    """
+    To add information of conditions
+    :param condition_list: the container of dataframes
+    :return: two dataframws after dealing
+    """
+    df_com = composition_list[0]
+    df_con = condition_avg_list[0]
+    for i in range(1, len(composition_list)):
+        df_com = df_com.add(composition_list[i], fill_value=0)
+    df_com = df_com/len(composition_list)
+    count = 0
+    for i in range(1, len(condition_avg_list)):
+        df_con = df_con.add(condition_avg_list[i], fill_value=0)
+        if len(condition_avg_list[i]) == 5:
+            count += 1
+    df_con = df_con / len(condition_avg_list)
+    df_con.loc['Other (see description)', 'Price'] = df_con.loc['Other (see description)', 'Price'] * len(condition_avg_list) / count
+    #print(list(df_con['Price']))
+    #print(list(df_com))
+    return df_com, df_con
 
 
 def csv_process_A(dir_name, ModelName):
@@ -188,34 +210,34 @@ def csv_process_A(dir_name, ModelName):
     files.sort()
     avg_per_day_list = []
     avg_per_week_list = []
+    compostion_list = []
+    condition_avg_list = []
     avg_per_week = 0
-    composition = pd.DataFrame([{"New (never used)": 0,
-                                 "Open box (never used)": 0,
-                                 "Other (see description)": 0,
-                                 "Reconditioned/Certified": 0,
-                                 "Used (normal wear)": 0}], columns=["Condition", "Number"])
-    print(composition)
-    condition_avg = pd.DataFrame([], columns=["Condition", "Price"])
+    avg_ratio_useful = 0
     for i, file in enumerate(files):
         if i == 0:
             continue
         name = file.split('_')[0]
         file = path + '/' + file
         df = pd.read_csv(file, lineterminator='\n')
-        df = clean(df, name)
-
+        len_before = len(df)
+        len_useless, df = clean(df, name)
+        print(len_before, len_useless)
+        avg_ratio_useful += (len_before - len_useless)/len_before
         s_cond = df['Condition']
         s_pri = df['Price'].astype('float32')
         df = pd.concat([s_cond, s_pri], axis=1)
         grp = df.groupby(['Condition'])
         composition = s_cond.value_counts()
         condition_avg = grp.mean()
-
         avg_per_day = s_pri.mean()
         avg_per_day_list.append({"Date": Date_dic[i-1],
                                  "AveragePrice": avg_per_day})
+        compostion_list.append(composition)
+        condition_avg_list.append(condition_avg)
         avg_per_week += avg_per_day
 
+    df_compostion, df_condition_avg = condition_handler_A(compostion_list, condition_avg_list)
     avg_per_week = round(avg_per_week/(len(files) - 1),2)
     avg_per_week_list.append({"ModelName": ModelName, "AveragePricePerWeek": avg_per_week})
     df_avg_per_week = pd.DataFrame(avg_per_week_list, columns=["ModelName", "AveragePricePerWeek"])
@@ -223,6 +245,10 @@ def csv_process_A(dir_name, ModelName):
 
     df_avg_per_day = pd.DataFrame(avg_per_day_list, columns=["Date", "AveragePrice"])
     df_avg_per_day.to_csv("./AvgPrice_per_day_A_" + ModelName + ".csv", index=False)
+    df_compostion.to_csv("./Composition_condition_A_" + ModelName + ".csv", index=False)
+    df_condition_avg.to_csv("./AvgPrice_condition_A_" + ModelName + ".csv", index=False)
+
+    avg_ratio_useful = avg_ratio_useful/(len(files) - 1)
 
 """
 file = './B_Offerup_S7/SamsungGalaxyS7_2019-11-30 01:02:59.981149_Result_Offerup.csv'
