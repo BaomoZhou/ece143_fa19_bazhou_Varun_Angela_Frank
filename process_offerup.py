@@ -196,6 +196,7 @@ def condition_handler_A(composition_list, condition_avg_list):
     df_con = df_con / len(condition_avg_list)
     df_con.loc['Other (see description)', 'Price'] = df_con.loc['Other (see description)', 'Price'] * len(condition_avg_list) / count
     df_com = df_com.rename_axis("Number")
+    print(df_con)
     #print(list(df_con['Price']))
     #print(list(df_com))
     return df_com, df_con
