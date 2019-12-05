@@ -18,7 +18,7 @@ def draw_avg_price_bar(model_name,filepath):
     assert(isinstance(filepath,str)),'the input filepath should be of type string'
     price_data = pd.read_csv(filepath)
     price_data.drop(axis=1, columns='Unnamed: 0', inplace=True)
-    my_colors = ['#64a1f4','#4a7c59']
+    my_colors = ['#0392cf','#7bc043']
     ax1 = price_data.plot(title='Average Price of '+model_name+' on Both Websites',x=model_name+'Model',kind='bar',rot=1,color=my_colors)
     ax1.set_ylabel('Average Price in $')
     
@@ -39,7 +39,7 @@ def draw_new_post_bar(model_name,filepath):
     assert(isinstance(filepath,str)),'the input filepath should be of type string'
     post_data = pd.read_csv(filepath)
     post_data.drop(axis=1, columns='Unnamed: 0', inplace=True)
-    my_colors = ['#64a1f4','#4a7c59']
+    my_colors = ['#0392cf','#7bc043']
     ax1 = post_data.plot(title='New Post of '+model_name+' on Both Websites',x=model_name+'Model',kind='bar',rot=1,color=my_colors)
     ax1.set_ylabel('Number of New Post')
     #ax1.set(ylim=[20,130])

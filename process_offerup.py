@@ -222,7 +222,6 @@ def csv_process_A(dir_name, ModelName):
         df = pd.read_csv(file, lineterminator='\n')
         len_before = len(df)
         len_useless, df = clean(df, name)
-        print(len_before, len_useless)
         avg_ratio_useful += (len_before - len_useless)/len_before
         s_cond = df['Condition']
         s_pri = df['Price'].astype('float32')
