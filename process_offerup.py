@@ -196,10 +196,9 @@ def condition_handler_A(composition_list, condition_avg_list):
     df_con = df_con / len(condition_avg_list)
     df_con.loc['Other (see description)', 'Price'] = df_con.loc['Other (see description)', 'Price'] * len(condition_avg_list) / count
     df_com = df_com.rename_axis("Number")
-    #print(list(df_con['Price']))
-    #print(list(df_com))
-    print(df_con)
-    return df_com, df_con
+    list(df_con['Price'])
+    list(df_com)
+    return list(df_com),  list(df_con['Price'])
 
 
 def distance(dt):
@@ -272,8 +271,8 @@ def csv_process_A(dir_name, ModelName):
     df_compostion.to_csv("./Composition_condition_A_" + ModelName + ".csv", index=False)
     df_condition_avg.to_csv("./AvgPrice_condition_A_" + ModelName + ".csv", index=False)
     avg_ratio_useful = avg_ratio_useful/(len(files) - 1)
-    print((under_ten, ten_to_fifty, fifty_above))
-    return avg_ratio_useful, newly_per_day_list, (under_ten, ten_to_fifty, fifty_above), avg_per_week
+    return avg_ratio_useful, newly_per_day_list, (under_ten, ten_to_fifty, fifty_above), avg_per_week, \
+           (df_compostion, df_condition_avg)
 """
 file = './B_Offerup_S7/SamsungGalaxyS7_2019-11-30 01:02:59.981149_Result_Offerup.csv'
 df = pd.read_csv(file)
