@@ -271,6 +271,7 @@ name = name_all[0]
 df = clean(df, name)
 avg, conditional_avg, max_price,  min_price = compute_avg(df)
 """
+'''
 path = './'
 files = os.listdir(path)
 compare_avg_list = []
@@ -285,6 +286,7 @@ for file in files:
                                  "NewlyPostNum": compare_newly_post(path + file)})
 df_compare_avg = pd.DataFrame(compare_avg_list, columns=["ModelName", "AveragePrice", "NewlyPostNum"])
 df_compare_avg.to_csv("./Compare_AvgPrice+NewlyPostNum_B.csv", index=False)
+'''
 #print(avg)
 #print(max_price)
 #print(min_price)
