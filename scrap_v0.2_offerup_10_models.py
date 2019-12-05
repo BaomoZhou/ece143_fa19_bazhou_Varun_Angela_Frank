@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import bs4
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from selenium import webdriver
@@ -10,6 +11,16 @@ import datetime
 
 
 def get_id(url):
+    '''
+    This function will get the item ID from the url
+    
+    :param url: this is the url of each scraped item
+    :type url: str
+    
+    :return: the unique ID of this item
+    '''
+    
+    assert(isinstance(url,str)),'this url should be of type string'
     ptn_url = r"\d+"
     item_id = re.search(ptn_url, url).group(0)
 
@@ -17,6 +28,15 @@ def get_id(url):
 
 
 def get_title(soup):
+    '''
+    This function will get the title from the webpage of a certain product
+    
+    :param soup: this is the BF4-analyzed webpage
+    :type soup: Beautiful object
+    
+    :return: the title of the webpage
+    '''
+    assert(isinstance(soup,bs4.BeautifulSoup)),'the soup parameter should be of class bf4.BeautifulSoup'
     title_soup = soup.find("h1", {"class": "_t1q67t0 _1juw1gq"})
     title = title_soup.get_text()
     print(f'{title}')
@@ -24,6 +44,15 @@ def get_title(soup):
 
 
 def get_value(soup):
+    '''
+    This function will get the price from the webpage of a certain product
+    
+    :param soup: this is the BF4-analyzed webpage
+    :type soup: Beautiful object
+    
+    :return: the price in both type of str and int/float
+    '''
+    assert(isinstance(soup,bs4.BeautifulSoup)),'the soup parameter should be of class bf4.BeautifulSoup'
     value_soup = soup.find("span", {"class": "_ckr320"})
     ptn_money = r"(?<=\$).+" # the pattern to find anything after the dollar sign
     value = re.search(ptn_money, value_soup.get_text()).group(0) if (value_soup is not None) else 'Sold!'
@@ -37,6 +66,15 @@ def get_value(soup):
 
 
 def get_condition(soup):
+    '''
+    This function will get the condition from the webpage of a certain product
+    
+    :param soup: this is the BF4-analyzed webpage
+    :type soup: Beautiful object
+    
+    :return: The condition
+    '''
+    assert(isinstance(soup,bs4.BeautifulSoup)),'the soup parameter should be of class bf4.BeautifulSoup'
     condition_soup = soup.find("span", {"data-test": "item-condition"})
     condition = condition_soup.get_text() if (condition_soup is not None) else 'No Condition INFO!'
     print(f'{condition}')
@@ -45,6 +83,15 @@ def get_condition(soup):
 
 
 def get_description(soup):
+    '''
+    This function will get the title from the webpage of a certain product
+    
+    :param soup: this is the BF4-analyzed webpage
+    :type soup: Beautiful object
+    
+    :return: the description 
+    '''
+    assert(isinstance(soup,bs4.BeautifulSoup)),'the soup parameter should be of class bf4.BeautifulSoup'
     description_soup = soup.find("div", {"data-test": "item-description"})
     description = description_soup.get_text() if (description_soup is not None) else 'No Description!'
     print(f'{description}')
@@ -53,6 +100,15 @@ def get_description(soup):
 
 
 def get_picture(soup):
+    '''
+    This function will get the number of pictures from the webpage of a certain product
+    
+    :param soup: this is the BF4-analyzed webpage
+    :type soup: Beautiful object
+    
+    :return: the number of the picture and the url of the picture
+    '''
+    assert(isinstance(soup,bs4.BeautifulSoup)),'the soup parameter should be of class bf4.BeautifulSoup'
     picture_soup = soup.find_all("img", {"class": "_fk4cz1", "src": re.compile("https://photos\.offerup\.com/.")})
     pic_num = len(picture_soup)
     pic_urls = []
@@ -64,6 +120,15 @@ def get_picture(soup):
 
 
 def get_shipping(soup):
+    '''
+    This function will get the shipping information (or pick-up information) from the webpage of a certain product
+    
+    :param soup: this is the BF4-analyzed webpage
+    :type soup: Beautiful object
+    
+    :return: for shipping option, it includes the shipping price and shipping location
+    '''
+    assert(isinstance(soup,bs4.BeautifulSoup)),'the soup parameter should be of class bf4.BeautifulSoup'
     delivery_soup = soup.find("span", {"class": "_147ao2d8 hidden-xs _149pqlo", "data-name": "delivery-info"})
     shipping_soup = soup.find("span", {"class": "_1v68mn6s _17axpax", "data-name": "shipping-text"})
     # get the delivery info text
@@ -111,6 +176,15 @@ def get_shipping(soup):
 
 
 def get_location(soup, ship_loc):
+    '''
+    This function will get the location from the webpage of a certain listing
+    
+    :param soup: this is the BF4-analyzed webpage
+    :type soup: Beautiful object
+    
+    :return: the location of the product
+    '''
+    assert(isinstance(soup,bs4.BeautifulSoup)),'the soup parameter should be of class bf4.BeautifulSoup'
     location_soup = soup.find("a", {"class": "_g85abvs _133jvmu8"})
     # when the product has shipping option
     if ship_loc is not None:
@@ -133,6 +207,15 @@ def get_location(soup, ship_loc):
 
 
 def get_time(soup):
+    '''
+    This function will get the post time from the webpage of a certain listing
+    
+    :param soup: this is the BF4-analyzed webpage
+    :type soup: Beautiful object
+    
+    :return: the post time
+    '''
+    assert(isinstance(soup,bs4.BeautifulSoup)),'the soup parameter should be of class bf4.BeautifulSoup'
     time_soup = soup.find("div", {"class": "_147ao2d8"})
     time_text = time_soup.get_text() if (time_soup is not None) else 'Unknown Time!'
 
@@ -144,7 +227,26 @@ def get_time(soup):
 
 
 def start_scrap(item_choice,base_url,keyword_choice,scroll_times,driver_addr):
-
+    '''
+    this is the main function for scraping
+    
+    :param item_choice: this is a number to choose one phone model out of ten to scrape.
+    :type item_choice: int
+    :param base_url: the base url link of offerup website
+    :type base_url: str
+    :param keyword_choice: a number to choose the keyword
+    :type keyword_choice: int
+    :param scroll_times: a number to control the time the browser would scroll
+    :type scroll_times: int
+    :param driver_addr: a path to the browser driver
+    :type driver_addr: str
+        
+    :return: output a csv to store all the information
+    '''
+    assert(isinstance(item_choice,int)),'the item_choice should be of type integer'
+    assert(isinstance(base_url,str)),'the base_url should be of type string'
+    assert(isinstance(keyword_choice,int)),'the keyword_choice should be of type integer'
+    assert(isinstance(driver_addr,str)),'the address of the browser driver should be of type string'
     # Base_url is the main target webpage
     item_name_list = ["IPhoneX",
                       "IPhone7",
