@@ -35,11 +35,7 @@ For Craigslist:
     for plotting.<br>
 3. Plotting:
     ```shell
-   jupyter notebook: 
-   
+   jupyter notebook: src/ECE143 project plot.ipynb
     ```
-
-1. add missing logos to the needing blank 
-2. Add photos for Iphonex and Samsung S8 to slides like slide 9 and 10
-3. section b too much information, gradually show them one by one with animation
-4. The final chart should be higher && logo is better than name && backgroud color && easy for eyes
+   Description: The methods for data cleaning and processing are called in jupyter notebook named "ECE143 project plot.ipynb".
+   After that, the plotting work finished based on the processed data.<br>
