@@ -34,7 +34,7 @@ For Craigslist:
     for plotting.<br>
 3. Plotting:
     ```shell
-   jupyter notebook: ECE143 project plot.ipynb
+   jupyter notebook: ECE143_project_plot.ipynb
     ```
    Description: The methods for data cleaning and processing are called in jupyter notebook named "ECE143 project plot.ipynb".
    After that, the plotting work finished based on the processed data.<br>
