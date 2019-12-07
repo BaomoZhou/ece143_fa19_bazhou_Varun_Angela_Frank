@@ -1,6 +1,6 @@
 # ece143_fa19_bazhou_Varun_Angela_Frank
 The main folder contains all the python scripts (scraping, cleaning, processing, plots).
-The subfolders contain all the data needed for the processing.<br>
+The subfolders contain all the data needed for the processing and all the plots we got.<br>
 
 Steps:
 1. Data Scraping:<br>
@@ -18,23 +18,25 @@ For Craigslist:<br>
     python Craigslist_v3.py 
     ```
     Description: The urls for scraping different phones have all been set in this file. 
-    The data generated is stored in subfolder named "Craigslist_data".<br>  
+    The data generated is stored in subfolders named "Craigslist_data" and "cl_10_model_data".<br>  
 2. Data Cleaning & Processing:<br>
 For Offerup: 
     ```shell
-    python process_offerup.py
+    process_offerup.py
     ```
     Description: Actually the python file named "process_offerup.py" is used to supply methods
-    for plotting.<br>  
+    for data cleaning and processing.<br>  
 For Craigslist:
     ```shell
-    python dataAnalysis_Craigslist.py
+    dataAnalysis_Craigslist.py
     ```
     Description: Actually the python file named "dataAnalysis_Craigslist.py" is also used to supply methods
-    for plotting.<br>
+    for data cleaning and processing.<br>
 3. Plotting:
     ```shell
+   plottest.py
    jupyter notebook: ECE143_project_plot.ipynb
     ```
-   Description: The methods for data cleaning and processing are called in jupyter notebook named "ECE143 project plot.ipynb".
+   Description: Actually the python file named "plottest.py" is used to supply methods for plotting. 
+   The methods for data cleaning and processing are called in jupyter notebook named "ECE143 project plot.ipynb".
    After that, the plotting work finished based on the processed data.<br>

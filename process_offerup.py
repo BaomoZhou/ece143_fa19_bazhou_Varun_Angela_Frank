@@ -273,15 +273,6 @@ def csv_process_A(dir_name, ModelName):
     avg_ratio_useful = avg_ratio_useful/(len(files) - 1)
     return avg_ratio_useful, newly_per_day_list, (under_ten, ten_to_fifty, fifty_above), avg_per_week, \
            (com_list, con_list)
-"""
-file = './B_Offerup_S7/SamsungGalaxyS7_2019-11-30 01:02:59.981149_Result_Offerup.csv'
-df = pd.read_csv(file)
-df.drop(axis=1, columns='Unnamed: 0', inplace=True)
-name_all = file.split('/')[2].split('_')
-name = name_all[0]
-df = clean(df, name)
-avg, conditional_avg, max_price,  min_price = compute_avg(df)
-"""
 
 path = './'
 files = os.listdir(path)
