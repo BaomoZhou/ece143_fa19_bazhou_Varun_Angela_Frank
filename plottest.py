@@ -27,11 +27,13 @@ def draw_avg_price_bar(model_name,filepath,filename,ylimit=None):
     price_data.drop(axis=1, columns='Unnamed: 0', inplace=True)
     my_colors = ['#800080', '#017270']
     plt.figure()
-    price_data.plot(title=model_name,x=model_name+'Model',kind='bar',rot=1,color=my_colors)
+    price_data.plot(x=model_name+'Model',kind='bar',rot=1,color=my_colors)
     plt.ylabel('Price {$}')
+    plt.xlabel('')
+    plt.title(model_name,fontdict = {'fontsize' : 25},pad=16)
     if ylimit is not None:
         plt.ylim(ylimit[0], ylimit[1])
-    plt.savefig(filename)
+    plt.savefig(filename,dpi=300)
     plt.show()
 
     
@@ -61,11 +63,13 @@ def draw_new_post_bar(model_name,filepath,filename,ylimit=None):
     post_data.drop(axis=1, columns='Unnamed: 0', inplace=True)
     my_colors = ['#800080', '#017270']
     plt.figure()
-    post_data.plot(title=model_name,x=model_name+'Model',kind='bar',rot=1,color=my_colors)
+    post_data.plot(x=model_name+'Model',kind='bar',rot=1,color=my_colors)
+    plt.title(model_name,fontdict = {'fontsize' : 25},pad=16)
     plt.ylabel('Number of New Post')
+    plt.xlabel('')
     if ylimit is not None:
         plt.ylim(ylimit[0], ylimit[1])
-    plt.savefig(filename)
+    plt.savefig(filename,dpi=300)
     plt.show()
 
     
